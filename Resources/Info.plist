@@ -7,7 +7,7 @@
     <key>CFBundleDisplayName</key>
     <string>Beepaboop</string>
     <key>CFBundleIdentifier</key>
-    <string>com.morte.beepaboop</string>
+    <string>com.memorte03.beepaboop</string>
     <key>CFBundleExecutable</key>
     <string>Beepaboop</string>
     <key>CFBundlePackageType</key>
@@ -23,7 +23,7 @@
     <key>LSUIElement</key>
     <true/>
     <key>NSHumanReadableCopyright</key>
-    <string>© morte</string>
+    <string>© memorte03</string>
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>NSAppleEventsUsageDescription</key>

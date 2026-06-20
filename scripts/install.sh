@@ -7,7 +7,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 APP_NAME="Beepaboop"
 DISPLAY_NAME="Beepaboop"
-BUNDLE_ID="com.morte.beepaboop"
+BUNDLE_ID="com.memorte03.beepaboop"
 INSTALL_DIR="/Applications"
 APP_BUNDLE="${INSTALL_DIR}/${DISPLAY_NAME}.app"
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/beepaboop"

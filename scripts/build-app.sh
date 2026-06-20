@@ -6,7 +6,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 APP_NAME="Beepaboop"
-BUNDLE_ID="com.morte.beepaboop"
+BUNDLE_ID="com.memorte03.beepaboop"
 OUT="${1:?usage: build-app.sh <output-path.app>}"
 cd "$REPO_ROOT"
 

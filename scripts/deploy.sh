@@ -4,7 +4,7 @@
 #
 # Always use this (or install.sh) — never a bare `cp` into the bundle. A plain
 # copy leaves the linker's default ad-hoc signature (Identifier=Beepaboop),
-# which no longer matches the com.morte.beepaboop identity that macOS TCC
+# which no longer matches the com.memorte03.beepaboop identity that macOS TCC
 # granted Accessibility/Automation to, silently breaking jump-to-session.
 #
 # Unlike install.sh this skips the hooks/settings steps, so it's quick.
@@ -13,7 +13,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 APP_NAME="Beepaboop"
 BUNDLE="/Applications/Beepaboop.app"
-BUNDLE_ID="com.morte.beepaboop"
+BUNDLE_ID="com.memorte03.beepaboop"
 
 cd "$REPO_ROOT"
 swift build -c release

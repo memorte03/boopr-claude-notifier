@@ -86,4 +86,4 @@ anything substantial before a large PR.
 
 ## License
 
-[MIT](LICENSE) © morte
+[MIT](LICENSE) © memorte03
