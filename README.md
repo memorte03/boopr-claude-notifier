@@ -13,10 +13,9 @@ or **asks for permission** — on whatever Space you're currently on. Approve or
 deny right there, see the diff, and jump straight to the session.
 
 > [!IMPORTANT]
-> **Boopr is a work in progress.** For now, [build it from source](#guide) —
-> a drag-to-install `.dmg` is coming in the near future.
-> It's vibecoded on weekends, so issues and PRs may get sporadic attention —
-> I'll gradually polish the code quality by hand as the project matures. 🙂
+> **Boopr is a work in progress.** It's vibecoded on weekends, so issues and PRs
+> may get sporadic attention — I'll gradually polish the code quality by hand as
+> the project matures. 🙂
 
 ## Features
 
@@ -36,9 +35,18 @@ deny right there, see the diff, and jump straight to the session.
 - [`jq`](https://jqlang.github.io/jq/) — `brew install jq`
 - *Optional, for the best jump-to-session:* tmux + [Ghostty](https://ghostty.org) 1.3+
 
-### Guide
+### Download the `.dmg` (recommended)
 
-Build from source:
+1. Grab the latest `Boopr-*.dmg` from the
+   [**Releases**](https://github.com/memorte03/boopr-claude-notifier/releases/latest) page.
+2. Open it and drag **Boopr** into your Applications folder.
+3. Launch Boopr. On first run it installs its Claude Code hooks for you.
+
+The build is Developer-ID-signed and Apple-notarized, so it opens with no
+Gatekeeper warning. Grant **Accessibility** and **Automation** when prompted —
+they're needed for jump-to-session.
+
+### Build from source
 
 ```sh
 git clone https://github.com/memorte03/boopr-claude-notifier
@@ -47,8 +55,7 @@ scripts/install.sh
 ```
 
 This builds Boopr, installs it into `/Applications`, and wires its Claude
-Code hooks for you. On first launch, grant **Accessibility** and **Automation**
-when prompted — they're needed for jump-to-session.
+Code hooks for you — same first-launch permission prompts as above.
 
 Uninstall any time with `scripts/uninstall.sh`.
 
