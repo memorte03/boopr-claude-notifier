@@ -17,6 +17,7 @@ enum FocusCoordinator {
         GhosttyRaiser(),
         ITerm2Raiser(),
         AppleTerminalRaiser(),
+        KittyRaiser(),
         MarkerAXRaiser(),
         TitleAXRaiser(),
         AppActivationRaiser(),

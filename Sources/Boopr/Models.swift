@@ -29,6 +29,8 @@ struct NotifyRequest: Codable, Sendable, Identifiable {
                                // non-tmux Ghostty raiser mark + focus the exact tab
     var itermSessionId: String?  // iTerm2 session GUID (ITERM_SESSION_ID after the
                                  // colon) — native focus-by-session, no marker
+    var kittyWindowId: String?   // KITTY_WINDOW_ID — kitty remote-control window id
+    var kittyListenOn: String?   // KITTY_LISTEN_ON — kitty remote-control socket
     var tmuxSession: String?
     var tmuxPane: String?      // pane id, e.g. "%4" — stable for the server's lifetime
     var tmuxWindowId: String?  // tmux window id, e.g. "@2"
@@ -41,7 +43,8 @@ struct NotifyRequest: Codable, Sendable, Identifiable {
 
     enum CodingKeys: String, CodingKey {
         case id, kind, repoName, branch, cwd, sessionId, title, context
-        case toolName, actions, terminalPid, terminalApp, windowTitle, tty, itermSessionId, tmuxSession
+        case toolName, actions, terminalPid, terminalApp, windowTitle, tty
+        case itermSessionId, kittyWindowId, kittyListenOn, tmuxSession
         case tmuxPane, tmuxWindowId, tmuxSocket, tmuxBin
         case diffPreview
     }

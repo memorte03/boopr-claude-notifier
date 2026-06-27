@@ -183,6 +183,12 @@ enum HookContext {
         return raw
     }
 
+    /// kitty remote-control identity: (window id, listen socket). Both empty
+    /// unless kitty has `allow_remote_control` + `listen_on` configured.
+    static func kittyInfo() -> (windowId: String, listenOn: String) {
+        (env["KITTY_WINDOW_ID"] ?? "", env["KITTY_LISTEN_ON"] ?? "")
+    }
+
     /// tmux identity: (session, pane, window id, socket, binary path).
     static func tmuxInfo() -> (session: String, pane: String, window: String, socket: String, bin: String) {
         guard let tmuxEnv = env["TMUX"], !tmuxEnv.isEmpty, let tmux = Proc.which("tmux") else {
@@ -231,6 +237,7 @@ enum HookContext {
         let cwd = input.cwd
         let term = terminalInfo()
         let tmux = tmuxInfo()
+        let kitty = kittyInfo()
         return NotifyRequest(
             id: id, kind: kind,
             repoName: opt(repoName(cwd: cwd)),
@@ -246,6 +253,8 @@ enum HookContext {
             windowTitle: opt(term.title),
             tty: opt(term.tty),
             itermSessionId: opt(itermSessionId()),
+            kittyWindowId: opt(kitty.windowId),
+            kittyListenOn: opt(kitty.listenOn),
             tmuxSession: opt(tmux.session),
             tmuxPane: opt(tmux.pane),
             tmuxWindowId: opt(tmux.window),
