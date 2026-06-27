@@ -32,9 +32,15 @@ enum FocusCoordinator {
             // Multiplexer positioned the pane; resolve its client tty and raise
             // off-main (clientTty shells out; the raisers poll AppleScript/AX).
             DispatchQueue.global(qos: .userInitiated).async {
+                let tty = mux.clientTty(for: req)
+                // Under tmux the hook's terminalApp is unreliable — a pane inherits
+                // the env of whatever started the tmux *server*, not the current
+                // client. Derive the real terminal from the client tty, which is
+                // genuinely owned by it.
+                let resolved = tty.flatMap(TerminalForTty.bundleID(forTty:)) ?? bundle
                 let ctx = RaiseContext(
-                    req: req, pid: pid, bundleID: bundle,
-                    markTty: mux.clientTty(for: req), titleHint: nil, multiplexed: true
+                    req: req, pid: pid, bundleID: resolved,
+                    markTty: tty, titleHint: nil, multiplexed: true
                 )
                 runRaisers(ctx)
             }
