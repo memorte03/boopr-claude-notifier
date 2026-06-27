@@ -174,6 +174,15 @@ enum HookContext {
         return (termPid, bundleId, title, controllingTty)
     }
 
+    /// iTerm2 session GUID from `ITERM_SESSION_ID` (format `wNtNpN:<GUID>`) — the
+    /// part after the last colon, which is iTerm2's AppleScript `id of session`.
+    /// Empty when not under iTerm2.
+    static func itermSessionId() -> String {
+        let raw = env["ITERM_SESSION_ID"] ?? ""
+        if let colon = raw.lastIndex(of: ":") { return String(raw[raw.index(after: colon)...]) }
+        return raw
+    }
+
     /// tmux identity: (session, pane, window id, socket, binary path).
     static func tmuxInfo() -> (session: String, pane: String, window: String, socket: String, bin: String) {
         guard let tmuxEnv = env["TMUX"], !tmuxEnv.isEmpty, let tmux = Proc.which("tmux") else {
@@ -236,6 +245,7 @@ enum HookContext {
             terminalApp: opt(term.app),
             windowTitle: opt(term.title),
             tty: opt(term.tty),
+            itermSessionId: opt(itermSessionId()),
             tmuxSession: opt(tmux.session),
             tmuxPane: opt(tmux.pane),
             tmuxWindowId: opt(tmux.window),

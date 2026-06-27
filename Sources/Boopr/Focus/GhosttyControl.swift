@@ -44,7 +44,7 @@ enum GhosttyControl {
     /// Bring Ghostty forward without targeting a specific tab (self-activation,
     /// crosses Spaces). The non-tmux fallback when there's no usable tty.
     static func activate() -> Bool {
-        runScriptVoid("tell application id \"\(bundleID)\" to activate")
+        AppleScript.runVoid("tell application id \"\(bundleID)\" to activate")
     }
 
     /// (id, title) of every Ghostty terminal across all windows and Spaces.
@@ -60,7 +60,7 @@ enum GhosttyControl {
             return out
         end tell
         """
-        guard let out = runScript(script) else { return [] }
+        guard let out = AppleScript.run(script) else { return [] }
         return out.split(separator: "\n").compactMap { line in
             let parts = line.components(separatedBy: "\u{1F}")
             guard parts.count >= 2 else { return nil }
@@ -84,39 +84,8 @@ enum GhosttyControl {
         end tell
         return ""
         """
-        guard let out = runScript(script), !out.isEmpty else { return nil }
+        guard let out = AppleScript.run(script), !out.isEmpty else { return nil }
         return out
-    }
-
-    /// Run AppleScript that returns a string. NSAppleScript is main-thread only;
-    /// callers are off-main, so hop to main (guard against a main caller
-    /// dead-locking on `main.sync`).
-    private static func runScript(_ source: String) -> String? {
-        func run() -> String? {
-            var error: NSDictionary?
-            let out = NSAppleScript(source: source)?.executeAndReturnError(&error)
-            if let error { NSLog("GhosttyControl: AppleScript error: \(error)") }
-            return out?.stringValue
-        }
-        if Thread.isMainThread { return run() }
-        var result: String?
-        DispatchQueue.main.sync { result = run() }
-        return result
-    }
-
-    /// Run AppleScript with no return value; success = no error (don't rely on a
-    /// string result, which `activate` doesn't produce).
-    private static func runScriptVoid(_ source: String) -> Bool {
-        func run() -> Bool {
-            var error: NSDictionary?
-            _ = NSAppleScript(source: source)?.executeAndReturnError(&error)
-            if let error { NSLog("GhosttyControl: AppleScript error: \(error)"); return false }
-            return true
-        }
-        if Thread.isMainThread { return run() }
-        var ok = false
-        DispatchQueue.main.sync { ok = run() }
-        return ok
     }
 }
 

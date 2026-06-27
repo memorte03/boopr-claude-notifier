@@ -15,6 +15,7 @@ enum FocusCoordinator {
     /// Window raisers in ascending rung order (most → least deterministic).
     private static let raisers: [WindowRaiser] = [
         GhosttyRaiser(),
+        ITerm2Raiser(),
         MarkerAXRaiser(),
         TitleAXRaiser(),
         AppActivationRaiser(),
