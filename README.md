@@ -38,22 +38,32 @@ raise the right window.
 | **Ghostty** 1.3+ | ✅ | ✅ |
 | **iTerm2** | ✅ | ✅ |
 | **Apple Terminal** | ✅ | ✅ |
-| Other terminals (kitty, WezTerm, Alacritty, Warp, …) | ⚠️ best-effort¹ | ⚠️ best-effort¹ |
+| **kitty** | ✅ ² | ✅ ² |
+| Other terminals (WezTerm, Alacritty, Warp, …) | ⚠️ best-effort¹ | ⚠️ best-effort¹ |
 
 ¹ For terminals without a dedicated adapter, Boopr falls back to raising the
 window by title/marker, and finally to plain app activation — so you land in the
 right app, but not always the exact tab.
 
-**tmux** is fully supported for the three terminals above — Boopr selects the
-exact pane and raises the terminal client window showing it, even when the same
-tmux server is attached from several terminals at once. (It identifies the real
+² kitty has no AppleScript, so it needs **remote control** enabled. Add to
+`~/.config/kitty/kitty.conf` and restart kitty:
+
+```conf
+allow_remote_control yes
+listen_on unix:/tmp/kitty
+```
+
+**tmux** is fully supported for the terminals above — Boopr selects the exact
+pane and raises the terminal client window showing it, even when the same tmux
+server is attached from several terminals at once. (It identifies the real
 terminal from the tmux client, not from environment variables, which a shared
 tmux server makes unreliable.)
 
 Jump-to-session needs **Accessibility** and, for the AppleScript-driven terminals
 (Ghostty/iTerm2/Apple Terminal), **Automation** permission for each — macOS
-prompts on first use. Want another terminal supported? Adapters are small and
-additive — open an issue or PR.
+prompts on first use (kitty uses its control socket instead, no Automation
+prompt). Want another terminal supported? Adapters are small and additive —
+open an issue or PR.
 
 ## Installation
 
@@ -61,7 +71,7 @@ additive — open an issue or PR.
 
 - macOS 14 (Sonoma) or newer
 - [Claude Code](https://claude.com/claude-code)
-- *For exact jump-to-session:* Ghostty 1.3+, iTerm2, or Apple Terminal (with or without tmux) — see [Supported terminals](#supported-terminals)
+- *For exact jump-to-session:* Ghostty 1.3+, iTerm2, Apple Terminal, or kitty (with or without tmux) — see [Supported terminals](#supported-terminals)
 
 ### Download the `.dmg` (recommended)
 
