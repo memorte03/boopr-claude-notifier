@@ -207,7 +207,7 @@ final class NotificationStore: ObservableObject {
         // the client showing that session must hold OS focus (tmux tracks
         // FocusIn/FocusOut per client) — title heuristics can't tell two
         // same-app windows apart, this can.
-        if let focused = TmuxFocuser.isPaneFocused(req: req) { return focused }
+        if let focused = TmuxMultiplexer.shared.isPaneFocused(req: req) { return focused }
 
         return isSessionWindowFocused(req: req, pid: front.processIdentifier)
     }
@@ -504,14 +504,14 @@ final class NotificationStore: ObservableObject {
         guard !pending.isEmpty, Date() >= focusSweepSuppressedUntil else { return }
         let front = NSWorkspace.shared.frontmostApplication
         let candidates = pending.filter {
-            matchesFrontApp($0.req, front) && TmuxFocuser.target(from: $0.req) != nil
+            matchesFrontApp($0.req, front) && TmuxMultiplexer.shared.handles($0.req)
         }
         guard !candidates.isEmpty else { return }
 
         // tmux checks shell out — keep them off the main thread.
         DispatchQueue.global(qos: .utility).async { [weak self] in
             let visited = candidates
-                .filter { TmuxFocuser.isPaneFocused(req: $0.req) == true }
+                .filter { TmuxMultiplexer.shared.isPaneFocused(req: $0.req) == true }
                 .map(\.key)
             guard !visited.isEmpty else { return }
             let toRemove = Set(visited)

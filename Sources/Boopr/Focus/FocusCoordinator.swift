@@ -2,42 +2,54 @@ import AppKit
 
 /// Single entry point for "bring the Claude session's surface forward" and for
 /// delivering the permission keystroke. It composes the two orthogonal layers:
-/// inner pane selection (multiplexer) and OS window raise (`WindowRaiser`s).
+/// inner pane selection (`Multiplexer`) and OS window raise (`WindowRaiser`s).
 ///
-/// The tmux pane-select + window-raise still run as the proven, fused
-/// `TmuxFocuser.focus` unit. Everything else flows through the `WindowRaiser`
-/// ladder: Ghostty (rung 1, AppleScript — exact tab via the captured tty, else
-/// self-activate), then the AX-title and app-activation fallbacks.
+/// A multiplexer (tmux) selects the pane and yields its client tty; otherwise the
+/// session's controlling tty is used directly. Either way the same raiser ladder
+/// runs off-main: Ghostty (rung 1, AppleScript — exact tab/window, cross-Space),
+/// AX-marker for other multiplexed terminals (rung 3), AX-title (rung 4), and the
+/// app-activation floor (rung 5).
 enum FocusCoordinator {
+    private static let mux: Multiplexer = TmuxMultiplexer.shared
+
     /// Window raisers in ascending rung order (most → least deterministic).
     private static let raisers: [WindowRaiser] = [
         GhosttyRaiser(),
+        MarkerAXRaiser(),
         TitleAXRaiser(),
         AppActivationRaiser(),
     ].sorted { $0.rung < $1.rung }
 
     /// Raise the terminal window the session runs in (jump-to-session).
     static func focus(req: NotifyRequest) {
-        // Deterministic multiplexer path: select the exact pane and raise the
-        // window of the client showing it (self-contained; raises off-main).
-        if TmuxFocuser.focus(req: req) { return }
+        let pid = req.terminalPid.map { pid_t($0) }
+        let bundle = req.terminalApp
 
-        // Non-multiplexer path: the session's controlling tty (`req.tty`) lets the
-        // Ghostty raiser mark + focus the exact tab; other terminals fall to
-        // AX-title / app-activation.
-        let ctx = RaiseContext(
-            req: req,
-            pid: req.terminalPid.map { pid_t($0) },
-            bundleID: req.terminalApp,
-            markTty: req.tty,
-            titleHint: req.windowTitle
-        )
-        // Off the main thread: Ghostty's AppleScript poll (usleep) and the AX
-        // work must not block the notification click handler.
-        DispatchQueue.global(qos: .userInitiated).async {
-            for raiser in raisers where raiser.canHandle(ctx) {
-                if raiser.raise(ctx) { return }
+        switch mux.selectPane(req) {
+        case .selected:
+            // Multiplexer positioned the pane; resolve its client tty and raise
+            // off-main (clientTty shells out; the raisers poll AppleScript/AX).
+            DispatchQueue.global(qos: .userInitiated).async {
+                let ctx = RaiseContext(
+                    req: req, pid: pid, bundleID: bundle,
+                    markTty: mux.clientTty(for: req), titleHint: nil, multiplexed: true
+                )
+                runRaisers(ctx)
             }
+        case .paneGone, .notApplicable:
+            // Direct path: the session's own controlling tty lets the Ghostty
+            // raiser mark + focus its tab; others match by title.
+            let ctx = RaiseContext(
+                req: req, pid: pid, bundleID: bundle,
+                markTty: req.tty, titleHint: req.windowTitle, multiplexed: false
+            )
+            DispatchQueue.global(qos: .userInitiated).async { runRaisers(ctx) }
+        }
+    }
+
+    private static func runRaisers(_ ctx: RaiseContext) {
+        for raiser in raisers where raiser.canHandle(ctx) {
+            if raiser.raise(ctx) { return }
         }
     }
 
@@ -46,6 +58,6 @@ enum FocusCoordinator {
     /// caller can fall back to focus + synthesized keystrokes.
     @discardableResult
     static func sendKeys(_ keys: [String], to req: NotifyRequest) -> Bool {
-        TmuxFocuser.sendKeys(keys, to: req)
+        mux.sendKeys(keys, to: req)
     }
 }
